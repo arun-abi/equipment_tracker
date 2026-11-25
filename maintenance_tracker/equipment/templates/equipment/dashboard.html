@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="stats">
+  <div class="stat" ><span>{{ total }}</span>Total equipment</div>
+  <div class="stat red"><span>{{ overdue|length }}</span>PM overdue</div>
+  <div class="stat amber"><span>{{ due_soon|length }}</span>Due soon</div>
+  <div class="stat blue"><span>{{ under_repair|length }}</span>Under repair</div>
+</div>
+
+<div class="grid2">
+  <section class="card">
+    <h2>PM overdue</h2>
+    {% for e in overdue %}
+      <p><a href="{{ e.get_absolute_url }}">{{ e.tag_no }} - {{ e.name }}</a><br>
+      <small>Was due {{ e.next_pm_due }} ({{ e.days_to_due|cut:"-" }} days ago) · {{ e.location }}</small></p>
+    {% empty %}<p class="muted">Nothing overdue. 🎉</p>{% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>Due soon</h2>
+    {% for e in due_soon %}
+      <p><a href="{{ e.get_absolute_url }}">{{ e.tag_no }} - {{ e.name }}</a><br>
+      <small>Due {{ e.next_pm_due }} (in {{ e.days_to_due }} days) · {{ e.location }}</small></p>
+    {% empty %}<p class="muted">Nothing due in the next 14 days.</p>{% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>Under repair</h2>
+    {% for e in under_repair %}
+      <p><a href="{{ e.get_absolute_url }}">{{ e.tag_no }} - {{ e.name }}</a></p>
+    {% empty %}<p class="muted">No equipment under repair.</p>{% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>Recent faults</h2>
+    {% for f in recent_faults %}
+      <p><a href="{{ f.equipment.get_absolute_url }}">{{ f.equipment.tag_no }}</a>: {{ f.fault_diagnosed }}<br>
+      <small>{{ f.date }}</small></p>
+    {% empty %}<p class="muted">No faults logged.</p>{% endfor %}
+  </section>
+</div>
+{% endblock %}

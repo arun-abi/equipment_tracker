@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Equipment{% endblock %}
+{% block content %}
+<div class="row">
+  <h1>Equipment</h1>
+  {% if perms.equipment.add_equipment %}<a class="btn" href="{% url 'equipment_add' %}">+ Add equipment</a>{% endif %}
+</div>
+
+<form method="get" class="filters">
+  <input type="text" name="q" placeholder="Search tag, name, location, serial" value="{{ filters.q }}">
+  <select name="category">
+    <option value="">All types</option>
+    {% for value, label in categories %}
+      <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="status">
+    <option value="">All status</option>
+    {% for value, label in statuses %}
+      <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="pm">
+    <option value="">Any PM state</option>
+    <option value="overdue" {% if filters.pm == "overdue" %}selected{% endif %}>Overdue</option>
+    <option value="due_soon" {% if filters.pm == "due_soon" %}selected{% endif %}>Due soon</option>
+    <option value="ok" {% if filters.pm == "ok" %}selected{% endif %}>OK</option>
+  </select>
+  <button class="btn" type="submit">Filter</button>
+</form>
+
+<table>
+  <thead>
+    <tr><th>Tag</th><th>Name</th><th>Type</th><th>Location</th><th>Status</th><th>PPM</th><th>Last PM</th><th>Next due</th></tr>
+  </thead>
+  <tbody>
+  {% for e in items %}
+    <tr>
+      <td><a href="{{ e.get_absolute_url }}">{{ e.tag_no }}</a></td>
+      <td>{{ e.name }}</td>
+      <td>{{ e.get_category_display }}</td>
+      <td>{{ e.location }}</td>
+      <td>{{ e.get_status_display }}</td>
+      <td>{{ e.get_ppm_period_days_display }}</td>
+      <td>{{ e.last_pm_date|default:"-" }}</td>
+      <td><span class="badge {{ e.pm_status }}">{{ e.next_pm_due|default:"-" }}</span></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="8" class="muted">No equipment found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

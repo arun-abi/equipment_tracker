@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ item.tag_no }}{% endblock %}
+{% block content %}
+<div class="row">
+  <h1>{{ item.tag_no }} - {{ item.name }}</h1>
+  <div>
+    {% if perms.equipment.change_equipment %}<a class="btn secondary" href="{% url 'equipment_edit' item.pk %}">Edit</a>{% endif %}
+    {% if perms.equipment.add_pmrecord %}<a class="btn" href="{% url 'pm_add' item.pk %}">+ PM done</a>{% endif %}
+    {% if perms.equipment.add_faultrecord %}<a class="btn" href="{% url 'fault_add' item.pk %}">+ Log fault</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid2">
+  <section class="card">
+    <h2>Equipment details</h2>
+    <dl>
+      <dt>Type</dt><dd>{{ item.get_category_display }}</dd>
+      <dt>Location</dt><dd>{{ item.location }}</dd>
+      <dt>Make / Model</dt><dd>{{ item.make|default:"-" }} / {{ item.model_no|default:"-" }}</dd>
+      <dt>Serial no.</dt><dd>{{ item.serial_no|default:"-" }}</dd>
+      <dt>Rating</dt><dd>{{ item.rating|default:"-" }}</dd>
+      <dt>Installed</dt><dd>{{ item.installation_date|default:"-" }}</dd>
+      <dt>Status</dt><dd>{{ item.get_status_display }}</dd>
+      {% if item.notes %}<dt>Notes</dt><dd>{{ item.notes }}</dd>{% endif %}
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>Preventive maintenance</h2>
+    <dl>
+      <dt>PPM period</dt><dd>{{ item.get_ppm_period_days_display }}</dd>
+      <dt>Last PM date</dt><dd>{{ item.last_pm_date|default:"Never" }}</dd>
+      <dt>Next PM due</dt>
+      <dd><span class="badge {{ item.pm_status }}">{{ item.next_pm_due|default:"-" }}</span>
+        {% if item.days_to_due is not None %}
+          <small>({% if item.days_to_due < 0 %}{{ item.days_to_due|cut:"-" }} days overdue{% else %}in {{ item.days_to_due }} days{% endif %})</small>
+        {% endif %}
+      </dd>
+      <dt>Last fault</dt>
+      <dd>{% if item.last_fault %}{{ item.last_fault.fault_diagnosed }} <small>({{ item.last_fault.date }})</small>{% else %}None logged{% endif %}</dd>
+    </dl>
+  </section>
+</div>
+
+<section class="card">
+  <h2>PM history</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Work done</th><th>By</th><th>Remarks</th></tr></thead>
+    <tbody>
+    {% for r in pm_records %}
+      <tr><td>{{ r.date }}</td><td>{{ r.work_done|linebreaksbr }}</td><td>{{ r.performed_by|default:"-" }}</td><td>{{ r.remarks|linebreaksbr }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="muted">No PM records yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Fault history</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Fault diagnosed</th><th>Action taken</th><th>Fixed by</th><th>Downtime (h)</th><th>Resolved</th></tr></thead>
+    <tbody>
+    {% for f in faults %}
+      <tr><td>{{ f.date }}</td><td>{{ f.fault_diagnosed }}</td><td>{{ f.action_taken|linebreaksbr }}</td><td>{{ f.fixed_by|default:"-" }}</td><td>{{ f.downtime_hours|default:"-" }}</td><td>{{ f.resolved|yesno:"Yes,No" }}</td></tr>
+    {% empty %}<tr><td colspan="6" class="muted">No faults logged.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

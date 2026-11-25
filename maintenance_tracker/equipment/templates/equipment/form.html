@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>{{ title }}</h1>
+  {% if equipment %}<p class="muted">{{ equipment.tag_no }} - {{ equipment.name }}</p>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Save</button>
+    <a href="{% if equipment %}{{ equipment.get_absolute_url }}{% else %}{% url 'equipment_list' %}{% endif %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-image">
+    <img src="{% static 'img/login.svg' %}" alt="Electrical panel illustration">
+  </div>
+  <div class="auth-form">
+    <h1> 👷 Engineer login</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn">Log in</button>
+    </form>
+    <p class="muted">New here? <a href="{% url 'signup' %}">Create an account</a></p>
+  </div>
+</div>
+{% endblock %}
+
